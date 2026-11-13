@@ -49,6 +49,7 @@ function facultyNewsProxy() {
 }
 
 export default defineConfig({
+  base: process.env.GITHUB_PAGES ? '/cityu_fds/' : '/',
   plugins: [facultyNewsProxy()],
   server: {
     host: '127.0.0.1',
