@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>澳門城市大學　數據科學學院　氹仔校園微縮</title>
+    <style>
+      :root {
+        --cityu: #0b6b3a;
+        --cityu-deep: #08562e;
+        --fds: #1E8F9B;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #cfcfcf;
+        font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+      }
+      canvas {
+        display: block;
+      }
+      #loader {
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        background: #2f6d82;
+        color: #f4f7f5;
+        transition: opacity 0.45s ease;
+      }
+      #loader.done {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #loader img {
+        width: 168px;
+        height: 168px;
+        object-fit: contain;
+        margin-bottom: 12px;
+        padding: 12px;
+        border-radius: 50%;
+        background: #fff;
+      }
+      #loader strong {
+        font-size: 44px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+      }
+      #loader .faculty {
+        color: #9ee7ee;
+        font-size: 32px;
+        font-weight: 700;
+      }
+      #loader .bar {
+        width: 336px;
+        height: 6px;
+        margin-top: 20px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.28);
+      }
+      #loader .bar span {
+        display: block;
+        width: 42%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--cityu), var(--fds));
+        animation: loader-slide 1.1s ease-in-out infinite;
+      }
+      #loader p {
+        margin: 16px 0 0;
+        font-size: 26px;
+        letter-spacing: 0.14em;
+      }
+      @keyframes loader-slide {
+        from { transform: translateX(-130%); }
+        to { transform: translateX(280%); }
+      }
+      .brand {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px 14px;
+        row-gap: 8px;
+        min-height: 72px;
+        padding: 8px 16px 12px;
+        background-color: #fff;
+        background-image: linear-gradient(90deg, var(--cityu) 50%, var(--fds) 50%);
+        background-repeat: no-repeat;
+        background-position: bottom;
+        background-size: 100% 4px;
+        box-shadow: 0 1px 0 rgba(11, 107, 58, 0.08);
+      }
+      .brand-mark,
+      .names a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .brand-mark {
+        display: flex;
+      }
+      .brand-mark:hover,
+      .names a:hover {
+        text-decoration: underline;
+      }
+      .brand img {
+        width: 56px;
+        height: 56px;
+        object-fit: contain;
+      }
+      .names {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.25;
+        min-width: 0;
+      }
+      .names strong {
+        color: var(--cityu-deep);
+        font-size: 20px;
+        font-weight: 700;
+      }
+      .names .faculty-name {
+        color: var(--fds);
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .names em {
+        margin-top: 2px;
+        color: var(--cityu);
+        font-size: 12px;
+        font-style: normal;
+        letter-spacing: 0.08em;
+      }
+      .brand-side {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px 12px;
+      }
+      @media (max-width: 980px) {
+        .brand-side {
+          flex-basis: 100%;
+          margin-left: 0;
+          justify-content: flex-start;
+        }
+      }
+      #views {
+        display: flex;
+        gap: 8px;
+      }
+      #views button {
+        font: 14px "Microsoft JhengHei", "PingFang TC", sans-serif;
+        padding: 6px 14px;
+        border: 1px solid var(--cityu);
+        border-radius: 4px;
+        background: #fff;
+        color: var(--cityu);
+        cursor: pointer;
+      }
+      #views button.active {
+        background: var(--cityu);
+        color: #fff;
+        border-color: var(--cityu);
+      }
+      #pick {
+        position: fixed;
+        left: 16px;
+        bottom: 16px;
+        z-index: 2;
+        min-height: 1.2em;
+        padding: 4px 10px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--cityu-deep);
+        font-size: 14px;
+      }
+      #pick:empty {
+        display: none;
+      }
+      #hint {
+        position: fixed;
+        left: 50%;
+        bottom: 16px;
+        transform: translateX(-50%);
+        z-index: 2;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: rgba(8, 86, 46, 0.82);
+        color: #f4f7f5;
+        font-size: 13px;
+        pointer-events: none;
+      }
+      #credit {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 2;
+        margin: 0;
+        padding: 6px 10px;
+        border-radius: 8px;
+        background: rgba(8, 86, 46, 0.55);
+        color: #f4f7f5;
+        font-size: 12px;
+        line-height: 1.45;
+        pointer-events: none;
+      }
+      @media (max-width: 760px) {
+        #credit {
+          bottom: 72px;
+        }
+      }
+      #about-toggle,
+      #fds-toggle {
+        font: 14px "Microsoft JhengHei", "PingFang TC", sans-serif;
+        padding: 6px 14px;
+        border: 1px solid var(--cityu);
+        border-radius: 4px;
+        background: #fff;
+        color: var(--cityu);
+        cursor: pointer;
+      }
+      #fds-toggle {
+        border-color: var(--fds);
+        color: var(--fds);
+      }
+      #about-toggle[aria-expanded="true"] {
+        background: var(--cityu);
+        color: #fff;
+      }
+      #fds-toggle[aria-expanded="true"] {
+        background: var(--fds);
+        color: #fff;
+        border-color: var(--fds);
+      }
+      #about,
+      #fds {
+        position: fixed;
+        top: calc(var(--header-h, 92px) + 12px);
+        left: 16px;
+        z-index: 3;
+        width: min(380px, calc(100vw - 32px));
+        max-height: calc(100vh - var(--header-h, 92px) - 56px);
+        overflow: auto;
+        padding: 16px 18px 18px;
+        background: #fff;
+        border: 1px solid #d7e6dc;
+        border-top: 4px solid var(--cityu);
+        border-radius: 8px;
+        box-shadow: 0 10px 28px rgba(8, 86, 46, 0.16);
+        color: #243028;
+      }
+      #fds {
+        border-top-color: var(--fds);
+        box-shadow: 0 10px 28px rgba(30, 143, 155, 0.18);
+      }
+      #about[hidden],
+      #fds[hidden] {
+        display: none;
+      }
+      #about header,
+      #fds header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+      #about h2,
+      #fds h2 {
+        margin: 0;
+        color: var(--cityu-deep);
+        font-size: 18px;
+      }
+      #fds h2,
+      #fds h3,
+      #fds-close,
+      #fds a {
+        color: #146f79;
+      }
+      #about-close,
+      #fds-close {
+        border: 0;
+        background: transparent;
+        color: var(--cityu);
+        font: 14px "Microsoft JhengHei", "PingFang TC", sans-serif;
+        cursor: pointer;
+      }
+      #about h3,
+      #fds h3 {
+        margin: 14px 0 6px;
+        color: var(--cityu);
+        font-size: 14px;
+      }
+      #about p,
+      #fds p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      #fds p + p,
+      #fds-courses > p {
+        margin-top: 12px;
+      }
+      #about ul,
+      #fds .fds-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      #about li,
+      #fds .fds-pills li {
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #eef6f1;
+        color: var(--cityu-deep);
+        font-size: 13px;
+      }
+      #fds .fds-pills li {
+        background: #e7f6f8;
+        color: #146f79;
+      }
+      #about .schools a,
+      #fds .fds-pills a {
+        color: inherit;
+        text-decoration: none;
+      }
+      #about .schools a:hover,
+      #fds .fds-pills a:hover {
+        text-decoration: underline;
+      }
+      #about .schools .faculty {
+        background: #e7f6f8;
+        color: #146f79;
+      }
+      #about a {
+        color: var(--cityu);
+      }
+      #about .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+        margin-top: 10px;
+      }
+      .fds-tabs {
+        display: flex;
+        gap: 6px;
+        margin: 4px 0 12px;
+      }
+      .fds-tabs button {
+        flex: 1;
+        border: 1px solid var(--fds);
+        border-radius: 4px;
+        background: #fff;
+        color: #146f79;
+        font: 14px "Microsoft JhengHei", "PingFang TC", sans-serif;
+        padding: 6px 0;
+        cursor: pointer;
+      }
+      .fds-tabs button[aria-selected="true"] {
+        background: var(--fds);
+        color: #fff;
+      }
+      #fds-news-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 0 0 12px;
+        padding: 0;
+        list-style: none;
+      }
+      #fds-news-list a {
+        color: #146f79;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      #fds-news-list li {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 8px;
+        align-items: baseline;
+      }
+      #fds-news-list time {
+        color: #146f79;
+        font-size: 12px;
+        line-height: 1.5;
+        white-space: nowrap;
+      }
+      #fds [hidden] {
+        display: none;
+      }
+    </style>
+    <script type="module" crossorigin src="/cityu_fds/assets/index-ElVLk6_3.js"></script>
+  </head>
+  <body>
+    <div id="loader" role="status" aria-live="polite">
+      <img src="/cityu_fds/assets/logo-BfEDKtvu.png" alt="" />
+      <strong>澳門城市大學</strong>
+      <span class="faculty">數據科學學院</span>
+      <div class="bar" aria-hidden="true"><span></span></div>
+      <p>正在載入校園</p>
+    </div>
+    <header class="brand">
+      <a class="brand-mark" href="https://www.cityu.edu.mo/" target="_blank" rel="noopener">
+        <img src="/cityu_fds/assets/logo-BfEDKtvu.png" alt="澳門城市大學校徽" />
+      </a>
+      <div class="names">
+        <a href="https://www.cityu.edu.mo/" target="_blank" rel="noopener"><strong>澳門城市大學</strong></a>
+        <a class="faculty-name" href="https://fds.cityu.edu.mo/" target="_blank" rel="noopener">數據科學學院</a>
+        <em>氹仔校園微縮</em>
+      </div>
+      <div class="brand-side">
+        <div id="views"></div>
+        <button id="about-toggle" type="button" aria-expanded="false" aria-controls="about">認識城大</button>
+        <button id="fds-toggle" type="button" aria-expanded="false" aria-controls="fds">數據科學學院</button>
+      </div>
+    </header>
+    <section id="about" hidden>
+      <header>
+        <h2>認識城大</h2>
+        <button id="about-close" type="button">關閉</button>
+      </header>
+      <h3>簡介</h3>
+      <p>前身為 1981 年東亞大學，2011 年更為現名。校訓「明德、博學、尚行」，走都會大學道路，服務澳門、融入灣區。現設 11 個學院。</p>
+      <h3>學院</h3>
+      <ul class="schools">
+        <li><a href="https://fob.cityu.edu.mo/" target="_blank" rel="noopener">商學院</a></li>
+        <li class="faculty"><a href="https://fds.cityu.edu.mo/" target="_blank" rel="noopener">數據科學學院</a></li>
+        <li><a href="https://fof.cityu.edu.mo/" target="_blank" rel="noopener">金融學院</a></li>
+        <li><a href="https://fhss.cityu.edu.mo/" target="_blank" rel="noopener">人文社會科學學院</a></li>
+        <li><a href="https://fhw.cityu.edu.mo/home" target="_blank" rel="noopener">大健康學院</a></li>
+        <li><a href="https://fiad.cityu.edu.mo/" target="_blank" rel="noopener">創新設計學院</a></li>
+        <li><a href="https://fitm.cityu.edu.mo/" target="_blank" rel="noopener">國際旅遊與管理學院</a></li>
+        <li><a href="https://soe.cityu.edu.mo/" target="_blank" rel="noopener">教育學院</a></li>
+        <li><a href="https://sol.cityu.edu.mo/" target="_blank" rel="noopener">法學院</a></li>
+        <li><a href="https://iropc.cityu.edu.mo/" target="_blank" rel="noopener">葡語國家研究院</a></li>
+        <li><a href="https://iusd.cityu.edu.mo/" target="_blank" rel="noopener">城市與可持續發展研究院</a></li>
+      </ul>
+      <h3>這個場景</h3>
+      <p>畫面是氹仔校園的微縮，可切換日間和夜景。</p>
+      <p class="links">
+        <a href="https://www.cityu.edu.mo/" target="_blank" rel="noopener">官方網站</a>
+        <a href="https://www.cityu.edu.mo/zh/%e5%a4%a7%e5%ad%b8%e7%b0%a1%e4%bb%8b/" target="_blank" rel="noopener">大學簡介</a>
+        <a href="https://www.cityu.edu.mo/zh/category/news/" target="_blank" rel="noopener">城大新聞</a>
+        <a href="https://www.cityu.edu.mo/%E6%A0%A1%E5%9C%92%E5%9C%B0%E5%9C%96/" target="_blank" rel="noopener">校園地圖</a>
+      </p>
+    </section>
+    <section id="fds" hidden>
+      <header>
+        <h2>數據科學學院</h2>
+        <button id="fds-close" type="button">關閉</button>
+      </header>
+      <div class="fds-tabs" role="tablist" aria-label="數據科學學院">
+        <button id="fds-tab-intro" type="button" role="tab" aria-selected="true" aria-controls="fds-intro">簡介</button>
+        <button id="fds-tab-courses" type="button" role="tab" aria-selected="false" aria-controls="fds-courses">課程</button>
+        <button id="fds-tab-news" type="button" role="tab" aria-selected="false" aria-controls="fds-news">動態</button>
+      </div>
+      <div id="fds-intro" role="tabpanel">
+        <p>配合大灣區發展、服務澳門，培養數據科學與人工智能人才，並做教研和應用。</p>
+        <p>天台上的青旗就是這個學院。詳細資料見<a href="https://fds.cityu.edu.mo/about" target="_blank" rel="noopener">學院簡介</a>。</p>
+      </div>
+      <div id="fds-courses" role="tabpanel" hidden>
+        <h3>學士</h3>
+        <ul class="fds-pills">
+          <li><a href="https://fds.cityu.edu.mo/BachelorsProgramme" target="_blank" rel="noopener">智能科技與服務</a></li>
+          <li><a href="https://fds.cityu.edu.mo/page-132" target="_blank" rel="noopener">計算機科學</a></li>
+          <li><a href="https://fds.cityu.edu.mo/page-250" target="_blank" rel="noopener">人工智能</a></li>
+          <li><a href="https://fds.cityu.edu.mo/page-231" target="_blank" rel="noopener">榮譽班</a></li>
+        </ul>
+        <h3>碩士</h3>
+        <ul class="fds-pills">
+          <li><a href="https://fds.cityu.edu.mo/MastersProgramme" target="_blank" rel="noopener">數據科學</a></li>
+          <li><a href="https://fds.cityu.edu.mo/page-136" target="_blank" rel="noopener">計算機科學</a></li>
+          <li><a href="https://fds.cityu.edu.mo/page-248" target="_blank" rel="noopener">人工智能</a></li>
+        </ul>
+        <h3>博士</h3>
+        <ul class="fds-pills">
+          <li><a href="https://fds.cityu.edu.mo/DoctorateProgramme" target="_blank" rel="noopener">數據科學</a></li>
+          <li><a href="https://fds.cityu.edu.mo/page-133" target="_blank" rel="noopener">計算機科學</a></li>
+        </ul>
+        <p><a href="https://fds.cityu.edu.mo/AppCrs" target="_blank" rel="noopener">招生章程</a></p>
+      </div>
+      <div id="fds-news" role="tabpanel" hidden>
+        <ul id="fds-news-list"></ul>
+        <p id="fds-news-fallback" hidden><a href="https://fds.cityu.edu.mo/News" target="_blank" rel="noopener">前往學院新聞</a></p>
+        <p id="fds-news-more" hidden><a href="https://fds.cityu.edu.mo/News" target="_blank" rel="noopener">學院新聞</a></p>
+      </div>
+    </section>
+    <div id="pick"></div>
+    <div id="hint">左鍵旋轉　右鍵平移　滾輪縮放　C 重設</div>
+    <p id="credit">製作學生　黃振星<br>指導老師　江愷瑤副教授</p>
+    <script>
+      const about = document.getElementById('about');
+      const aboutToggle = document.getElementById('about-toggle');
+      const fds = document.getElementById('fds');
+      const fdsToggle = document.getElementById('fds-toggle');
+      function setPanel(panel, toggle, open) {
+        panel.hidden = !open;
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+      aboutToggle.addEventListener('click', () => {
+        const open = about.hidden;
+        setPanel(about, aboutToggle, open);
+        if (open) setPanel(fds, fdsToggle, false);
+      });
+      fdsToggle.addEventListener('click', () => {
+        const open = fds.hidden;
+        setPanel(fds, fdsToggle, open);
+        if (open) setPanel(about, aboutToggle, false);
+      });
+      document.getElementById('about-close').addEventListener('click', () => setPanel(about, aboutToggle, false));
+      document.getElementById('fds-close').addEventListener('click', () => setPanel(fds, fdsToggle, false));
+
+      const brand = document.querySelector('.brand');
+      function placePanels() {
+        document.documentElement.style.setProperty('--header-h', `${brand.getBoundingClientRect().height}px`);
+      }
+      placePanels();
+      window.addEventListener('resize', placePanels);
+      if (window.ResizeObserver) new ResizeObserver(placePanels).observe(brand);
+
+      const fdsTabs = [
+        ['fds-tab-intro', 'fds-intro'],
+        ['fds-tab-courses', 'fds-courses'],
+        ['fds-tab-news', 'fds-news'],
+      ].map(([buttonId, panelId]) => ({
+        button: document.getElementById(buttonId),
+        panel: document.getElementById(panelId),
+      }));
+      const newsList = document.getElementById('fds-news-list');
+      const newsFallback = document.getElementById('fds-news-fallback');
+      const newsMore = document.getElementById('fds-news-more');
+      let newsRequest = 0;
+
+      function showFacultyTab(button) {
+        for (const tab of fdsTabs) {
+          const selected = tab.button === button;
+          tab.button.setAttribute('aria-selected', selected ? 'true' : 'false');
+          tab.panel.hidden = !selected;
+        }
+        if (button.id === 'fds-tab-news') loadFacultyNews();
+      }
+
+      async function loadFacultyNews() {
+        const request = ++newsRequest;
+        newsList.replaceChildren();
+        newsFallback.hidden = true;
+        newsMore.hidden = true;
+        try {
+          const response = await fetch('/fds-news', { cache: 'no-store' });
+          if (!response.ok) throw new Error('news');
+          const data = await response.json();
+          if (request !== newsRequest) return;
+          const items = Array.isArray(data.items) ? data.items.slice(0, 3) : [];
+          if (items.length < 3 || items.some((item) => !item || typeof item.title !== 'string' || typeof item.url !== 'string' || !/^\d{4}\/\d{2}\/\d{2}$/.test(item.date))) {
+            throw new Error('news');
+          }
+          for (const item of items) {
+            const link = document.createElement('a');
+            link.href = item.url;
+            link.target = '_blank';
+            link.rel = 'noopener';
+            link.textContent = item.title;
+            const time = document.createElement('time');
+            time.dateTime = item.date.replaceAll('/', '-');
+            time.textContent = item.date;
+            const row = document.createElement('li');
+            row.append(time, link);
+            newsList.append(row);
+          }
+          newsMore.hidden = false;
+        } catch {
+          if (request !== newsRequest) return;
+          newsList.replaceChildren();
+          newsFallback.hidden = false;
+        }
+      }
+
+      for (const tab of fdsTabs) {
+        tab.button.addEventListener('click', () => showFacultyTab(tab.button));
+      }
+    </script>
+  </body>
+</html>
