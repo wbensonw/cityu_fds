@@ -223,7 +223,8 @@
         }
       }
       #about-toggle,
-      #fds-toggle {
+      #fds-toggle,
+      #calendar-toggle {
         font: 14px "Microsoft JhengHei", "PingFang TC", sans-serif;
         padding: 6px 14px;
         border: 1px solid var(--cityu);
@@ -245,8 +246,13 @@
         color: #fff;
         border-color: var(--fds);
       }
+      #calendar-toggle[aria-expanded="true"] {
+        background: var(--cityu);
+        color: #fff;
+      }
       #about,
-      #fds {
+      #fds,
+      #calendar {
         position: fixed;
         top: calc(var(--header-h, 92px) + 12px);
         left: 16px;
@@ -267,11 +273,13 @@
         box-shadow: 0 10px 28px rgba(30, 143, 155, 0.18);
       }
       #about[hidden],
-      #fds[hidden] {
+      #fds[hidden],
+      #calendar[hidden] {
         display: none;
       }
       #about header,
-      #fds header {
+      #fds header,
+      #calendar header {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -279,7 +287,8 @@
         margin-bottom: 8px;
       }
       #about h2,
-      #fds h2 {
+      #fds h2,
+      #calendar h2 {
         margin: 0;
         color: var(--cityu-deep);
         font-size: 18px;
@@ -291,12 +300,120 @@
         color: #146f79;
       }
       #about-close,
-      #fds-close {
+      #fds-close,
+      #calendar-close {
         border: 0;
         background: transparent;
         color: var(--cityu);
         font: 14px "Microsoft JhengHei", "PingFang TC", sans-serif;
         cursor: pointer;
+      }
+      .calendar-nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 4px 0 12px;
+      }
+      .calendar-nav button,
+      .calendar-nav select {
+        font: 14px "Microsoft JhengHei", "PingFang TC", sans-serif;
+        border: 1px solid #c7ddd0;
+        border-radius: 4px;
+        background: #fff;
+        color: var(--cityu-deep);
+        cursor: pointer;
+      }
+      .calendar-nav button {
+        width: 32px;
+        height: 32px;
+      }
+      .calendar-nav select {
+        flex: 1;
+        padding: 6px 8px;
+      }
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: 34px repeat(7, 1fr);
+        gap: 4px;
+      }
+      .calendar-grid .head,
+      .calendar-grid .week {
+        text-align: center;
+        color: #6a7a72;
+        font-size: 12px;
+        padding: 4px 0;
+      }
+      .calendar-grid .week {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .calendar-grid button {
+        min-height: 34px;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        background: #f5f8f6;
+        color: #243028;
+        font: 13px "Microsoft JhengHei", "PingFang TC", sans-serif;
+        cursor: pointer;
+      }
+      .calendar-grid button:disabled {
+        background: transparent;
+        color: transparent;
+        cursor: default;
+      }
+      .calendar-grid button.today {
+        border-color: var(--cityu);
+      }
+      .calendar-grid button.selected {
+        box-shadow: inset 0 0 0 2px rgba(11, 107, 58, 0.35);
+      }
+      .calendar-grid button.green {
+        background: #d1dfd0;
+      }
+      .calendar-grid button.cyan {
+        background: #94fcf2;
+      }
+      .calendar-grid button.pink {
+        background: #f5dfda;
+      }
+      .calendar-grid button.yellow {
+        background: #fff085;
+      }
+      #calendar-note {
+        min-height: 1.5em;
+        margin: 12px 0 0;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .calendar-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .calendar-legend li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #3d4a44;
+      }
+      .calendar-legend span {
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+      }
+      .calendar-legend .cyan {
+        background: #94fcf2;
+      }
+      .calendar-legend .pink {
+        background: #f5dfda;
+      }
+      .calendar-legend .yellow {
+        background: #fff085;
       }
       #about h3,
       #fds h3 {
@@ -427,6 +544,7 @@
         <div id="views"></div>
         <button id="about-toggle" type="button" aria-expanded="false" aria-controls="about">認識城大</button>
         <button id="fds-toggle" type="button" aria-expanded="false" aria-controls="fds">數據科學學院</button>
+        <button id="calendar-toggle" type="button" aria-expanded="false" aria-controls="calendar">校曆</button>
       </div>
     </header>
     <section id="about" hidden>
@@ -500,31 +618,209 @@
         <p id="fds-news-more" hidden><a href="https://fds.cityu.edu.mo/News" target="_blank" rel="noopener">學院新聞</a></p>
       </div>
     </section>
+    <section id="calendar" hidden>
+      <header>
+        <h2>2026/2027 學年校曆</h2>
+        <button id="calendar-close" type="button">關閉</button>
+      </header>
+      <div class="calendar-nav">
+        <button id="calendar-prev" type="button" aria-label="上個月">‹</button>
+        <select id="calendar-month" aria-label="選擇月份"></select>
+        <button id="calendar-next" type="button" aria-label="下個月">›</button>
+      </div>
+      <div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
+      <p id="calendar-note"></p>
+      <ul class="calendar-legend" aria-label="色塊圖例">
+        <li><span class="cyan" aria-hidden="true"></span>重要日子</li>
+        <li><span class="pink" aria-hidden="true"></span>假期</li>
+        <li><span class="yellow" aria-hidden="true"></span>考試週</li>
+      </ul>
+    </section>
     <div id="pick"></div>
     <div id="hint">左鍵旋轉　右鍵平移　滾輪縮放　C 重設</div>
     <p id="credit">指導老師：江愷瑤副教授<br>製作學生：黃振星</p>
     <script type="module" src="/src/main.js"></script>
-    <script>
+    <script type="module">
+      import { calendarMarks, calendarWeeks, calendarColors, calendarEvents } from '/src/calendar.js';
+
       const about = document.getElementById('about');
       const aboutToggle = document.getElementById('about-toggle');
       const fds = document.getElementById('fds');
       const fdsToggle = document.getElementById('fds-toggle');
+      const calendar = document.getElementById('calendar');
+      const calendarToggle = document.getElementById('calendar-toggle');
+      const panels = [
+        [about, aboutToggle],
+        [fds, fdsToggle],
+        [calendar, calendarToggle],
+      ];
       function setPanel(panel, toggle, open) {
         panel.hidden = !open;
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       }
+      function openOnly(target) {
+        for (const [panel, toggle] of panels) {
+          setPanel(panel, toggle, panel === target);
+        }
+      }
       aboutToggle.addEventListener('click', () => {
-        const open = about.hidden;
-        setPanel(about, aboutToggle, open);
-        if (open) setPanel(fds, fdsToggle, false);
+        if (about.hidden) openOnly(about);
+        else setPanel(about, aboutToggle, false);
       });
       fdsToggle.addEventListener('click', () => {
-        const open = fds.hidden;
-        setPanel(fds, fdsToggle, open);
-        if (open) setPanel(about, aboutToggle, false);
+        if (fds.hidden) openOnly(fds);
+        else setPanel(fds, fdsToggle, false);
+      });
+      calendarToggle.addEventListener('click', () => {
+        if (calendar.hidden) openOnly(calendar);
+        else setPanel(calendar, calendarToggle, false);
       });
       document.getElementById('about-close').addEventListener('click', () => setPanel(about, aboutToggle, false));
       document.getElementById('fds-close').addEventListener('click', () => setPanel(fds, fdsToggle, false));
+      document.getElementById('calendar-close').addEventListener('click', () => setPanel(calendar, calendarToggle, false));
+
+      const monthSelect = document.getElementById('calendar-month');
+      const calendarGrid = document.getElementById('calendar-grid');
+      const calendarNote = document.getElementById('calendar-note');
+      const calendarPrev = document.getElementById('calendar-prev');
+      const calendarNext = document.getElementById('calendar-next');
+      const months = [];
+      for (let year = 2026, month = 8; year < 2027 || (year === 2027 && month <= 8); ) {
+        months.push({ year, month });
+        month += 1;
+        if (month > 12) {
+          month = 1;
+          year += 1;
+        }
+      }
+      let selectedKey = '';
+      const today = new Date();
+      const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      const weekdayLabels = ['日', '一', '二', '三', '四', '五', '六'];
+      let monthIndex = months.findIndex((item) => item.year === today.getFullYear() && item.month === today.getMonth() + 1);
+      if (monthIndex < 0) monthIndex = 0;
+
+      for (let i = 0; i < months.length; i += 1) {
+        const option = document.createElement('option');
+        option.value = String(i);
+        option.textContent = `${months[i].year} 年 ${months[i].month} 月`;
+        monthSelect.appendChild(option);
+      }
+
+      function pad(n) {
+        return String(n).padStart(2, '0');
+      }
+
+      function dateKey(year, month, day) {
+        return `${year}-${pad(month)}-${pad(day)}`;
+      }
+
+      function weekFor(year, month, day) {
+        const sunday = new Date(year, month - 1, day);
+        sunday.setDate(sunday.getDate() - sunday.getDay());
+        for (let offset = 0; offset < 7; offset += 1) {
+          const d = new Date(sunday);
+          d.setDate(sunday.getDate() + offset);
+          const key = dateKey(d.getFullYear(), d.getMonth() + 1, d.getDate());
+          if (calendarWeeks[key] != null) return calendarWeeks[key];
+        }
+        return null;
+      }
+
+      function showNote(key) {
+        if (!key) {
+          calendarNote.textContent = '';
+          return;
+        }
+        const [y, m, d] = key.split('-').map(Number);
+        const dateText = `${y} 年 ${m} 月 ${d} 日`;
+        const event = calendarEvents[key];
+        if (event) {
+          calendarNote.textContent = `${dateText} · ${event}`;
+          return;
+        }
+        const color = calendarMarks[key];
+        calendarNote.textContent = color
+          ? `${dateText} · ${calendarColors[color]}`
+          : dateText;
+      }
+
+      function renderCalendar() {
+        const { year, month } = months[monthIndex];
+        monthSelect.value = String(monthIndex);
+        calendarPrev.disabled = monthIndex === 0;
+        calendarNext.disabled = monthIndex === months.length - 1;
+        calendarGrid.replaceChildren();
+
+        const weekHead = document.createElement('div');
+        weekHead.className = 'head';
+        weekHead.textContent = '週';
+        calendarGrid.appendChild(weekHead);
+        for (const label of weekdayLabels) {
+          const head = document.createElement('div');
+          head.className = 'head';
+          head.textContent = label;
+          calendarGrid.appendChild(head);
+        }
+
+        const first = new Date(year, month - 1, 1);
+        const startPad = first.getDay();
+        const daysInMonth = new Date(year, month, 0).getDate();
+        const totalCells = Math.ceil((startPad + daysInMonth) / 7) * 7;
+
+        for (let cell = 0; cell < totalCells; cell += 1) {
+          if (cell % 7 === 0) {
+            const ref = new Date(year, month - 1, cell - startPad + 1);
+            const weekLabel = document.createElement('div');
+            weekLabel.className = 'week';
+            const w = weekFor(ref.getFullYear(), ref.getMonth() + 1, ref.getDate());
+            weekLabel.textContent = w == null ? '' : String(w);
+            calendarGrid.appendChild(weekLabel);
+          }
+
+          const dayNum = cell - startPad + 1;
+          const button = document.createElement('button');
+          button.type = 'button';
+          if (dayNum < 1 || dayNum > daysInMonth) {
+            button.disabled = true;
+            button.textContent = '';
+          } else {
+            const key = dateKey(year, month, dayNum);
+            button.textContent = String(dayNum);
+            button.dataset.date = key;
+            const color = calendarMarks[key];
+            if (color) button.classList.add(color);
+            if (key === todayKey) button.classList.add('today');
+            if (key === selectedKey) button.classList.add('selected');
+            button.addEventListener('click', () => {
+              selectedKey = key;
+              showNote(key);
+              for (const node of calendarGrid.querySelectorAll('button[data-date]')) {
+                node.classList.toggle('selected', node.dataset.date === selectedKey);
+              }
+            });
+          }
+          calendarGrid.appendChild(button);
+        }
+      }
+
+      monthSelect.addEventListener('change', () => {
+        monthIndex = Number(monthSelect.value);
+        renderCalendar();
+      });
+      calendarPrev.addEventListener('click', () => {
+        if (monthIndex > 0) {
+          monthIndex -= 1;
+          renderCalendar();
+        }
+      });
+      calendarNext.addEventListener('click', () => {
+        if (monthIndex < months.length - 1) {
+          monthIndex += 1;
+          renderCalendar();
+        }
+      });
+      renderCalendar();
 
       const brand = document.querySelector('.brand');
       function placePanels() {
