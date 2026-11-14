@@ -223,7 +223,8 @@
         }
       }
       #about-toggle,
-      #fds-toggle {
+      #fds-toggle,
+      #calendar-toggle {
         font: 14px "Microsoft JhengHei", "PingFang TC", sans-serif;
         padding: 6px 14px;
         border: 1px solid var(--cityu);
@@ -245,8 +246,13 @@
         color: #fff;
         border-color: var(--fds);
       }
+      #calendar-toggle[aria-expanded="true"] {
+        background: var(--cityu);
+        color: #fff;
+      }
       #about,
-      #fds {
+      #fds,
+      #calendar {
         position: fixed;
         top: calc(var(--header-h, 92px) + 12px);
         left: 16px;
@@ -267,11 +273,13 @@
         box-shadow: 0 10px 28px rgba(30, 143, 155, 0.18);
       }
       #about[hidden],
-      #fds[hidden] {
+      #fds[hidden],
+      #calendar[hidden] {
         display: none;
       }
       #about header,
-      #fds header {
+      #fds header,
+      #calendar header {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -279,7 +287,8 @@
         margin-bottom: 8px;
       }
       #about h2,
-      #fds h2 {
+      #fds h2,
+      #calendar h2 {
         margin: 0;
         color: var(--cityu-deep);
         font-size: 18px;
@@ -291,12 +300,120 @@
         color: #146f79;
       }
       #about-close,
-      #fds-close {
+      #fds-close,
+      #calendar-close {
         border: 0;
         background: transparent;
         color: var(--cityu);
         font: 14px "Microsoft JhengHei", "PingFang TC", sans-serif;
         cursor: pointer;
+      }
+      .calendar-nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 4px 0 12px;
+      }
+      .calendar-nav button,
+      .calendar-nav select {
+        font: 14px "Microsoft JhengHei", "PingFang TC", sans-serif;
+        border: 1px solid #c7ddd0;
+        border-radius: 4px;
+        background: #fff;
+        color: var(--cityu-deep);
+        cursor: pointer;
+      }
+      .calendar-nav button {
+        width: 32px;
+        height: 32px;
+      }
+      .calendar-nav select {
+        flex: 1;
+        padding: 6px 8px;
+      }
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: 34px repeat(7, 1fr);
+        gap: 4px;
+      }
+      .calendar-grid .head,
+      .calendar-grid .week {
+        text-align: center;
+        color: #6a7a72;
+        font-size: 12px;
+        padding: 4px 0;
+      }
+      .calendar-grid .week {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .calendar-grid button {
+        min-height: 34px;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        background: #f5f8f6;
+        color: #243028;
+        font: 13px "Microsoft JhengHei", "PingFang TC", sans-serif;
+        cursor: pointer;
+      }
+      .calendar-grid button:disabled {
+        background: transparent;
+        color: transparent;
+        cursor: default;
+      }
+      .calendar-grid button.today {
+        border-color: var(--cityu);
+      }
+      .calendar-grid button.selected {
+        box-shadow: inset 0 0 0 2px rgba(11, 107, 58, 0.35);
+      }
+      .calendar-grid button.green {
+        background: #d1dfd0;
+      }
+      .calendar-grid button.cyan {
+        background: #94fcf2;
+      }
+      .calendar-grid button.pink {
+        background: #f5dfda;
+      }
+      .calendar-grid button.yellow {
+        background: #fff085;
+      }
+      #calendar-note {
+        min-height: 1.5em;
+        margin: 12px 0 0;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .calendar-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .calendar-legend li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #3d4a44;
+      }
+      .calendar-legend span {
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+      }
+      .calendar-legend .cyan {
+        background: #94fcf2;
+      }
+      .calendar-legend .pink {
+        background: #f5dfda;
+      }
+      .calendar-legend .yellow {
+        background: #fff085;
       }
       #about h3,
       #fds h3 {
@@ -405,7 +522,7 @@
         display: none;
       }
     </style>
-    <script type="module" crossorigin src="/cityu_fds/assets/index-ElVLk6_3.js"></script>
+    <script type="module" crossorigin src="/cityu_fds/assets/index-BhZejSQS.js"></script>
   </head>
   <body>
     <div id="loader" role="status" aria-live="polite">
@@ -428,6 +545,7 @@
         <div id="views"></div>
         <button id="about-toggle" type="button" aria-expanded="false" aria-controls="about">認識城大</button>
         <button id="fds-toggle" type="button" aria-expanded="false" aria-controls="fds">數據科學學院</button>
+        <button id="calendar-toggle" type="button" aria-expanded="false" aria-controls="calendar">校曆</button>
       </div>
     </header>
     <section id="about" hidden>
@@ -501,99 +619,26 @@
         <p id="fds-news-more" hidden><a href="https://fds.cityu.edu.mo/News" target="_blank" rel="noopener">學院新聞</a></p>
       </div>
     </section>
+    <section id="calendar" hidden>
+      <header>
+        <h2>2026/2027 學年校曆</h2>
+        <button id="calendar-close" type="button">關閉</button>
+      </header>
+      <div class="calendar-nav">
+        <button id="calendar-prev" type="button" aria-label="上個月">‹</button>
+        <select id="calendar-month" aria-label="選擇月份"></select>
+        <button id="calendar-next" type="button" aria-label="下個月">›</button>
+      </div>
+      <div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
+      <p id="calendar-note"></p>
+      <ul class="calendar-legend" aria-label="色塊圖例">
+        <li><span class="cyan" aria-hidden="true"></span>重要日子</li>
+        <li><span class="pink" aria-hidden="true"></span>假期</li>
+        <li><span class="yellow" aria-hidden="true"></span>考試週</li>
+      </ul>
+    </section>
     <div id="pick"></div>
     <div id="hint">左鍵旋轉　右鍵平移　滾輪縮放　C 重設</div>
     <p id="credit">指導老師：江愷瑤副教授<br>製作學生：黃振星</p>
-    <script>
-      const about = document.getElementById('about');
-      const aboutToggle = document.getElementById('about-toggle');
-      const fds = document.getElementById('fds');
-      const fdsToggle = document.getElementById('fds-toggle');
-      function setPanel(panel, toggle, open) {
-        panel.hidden = !open;
-        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-      }
-      aboutToggle.addEventListener('click', () => {
-        const open = about.hidden;
-        setPanel(about, aboutToggle, open);
-        if (open) setPanel(fds, fdsToggle, false);
-      });
-      fdsToggle.addEventListener('click', () => {
-        const open = fds.hidden;
-        setPanel(fds, fdsToggle, open);
-        if (open) setPanel(about, aboutToggle, false);
-      });
-      document.getElementById('about-close').addEventListener('click', () => setPanel(about, aboutToggle, false));
-      document.getElementById('fds-close').addEventListener('click', () => setPanel(fds, fdsToggle, false));
-
-      const brand = document.querySelector('.brand');
-      function placePanels() {
-        document.documentElement.style.setProperty('--header-h', `${brand.getBoundingClientRect().height}px`);
-      }
-      placePanels();
-      window.addEventListener('resize', placePanels);
-      if (window.ResizeObserver) new ResizeObserver(placePanels).observe(brand);
-
-      const fdsTabs = [
-        ['fds-tab-intro', 'fds-intro'],
-        ['fds-tab-courses', 'fds-courses'],
-        ['fds-tab-news', 'fds-news'],
-      ].map(([buttonId, panelId]) => ({
-        button: document.getElementById(buttonId),
-        panel: document.getElementById(panelId),
-      }));
-      const newsList = document.getElementById('fds-news-list');
-      const newsFallback = document.getElementById('fds-news-fallback');
-      const newsMore = document.getElementById('fds-news-more');
-      let newsRequest = 0;
-
-      function showFacultyTab(button) {
-        for (const tab of fdsTabs) {
-          const selected = tab.button === button;
-          tab.button.setAttribute('aria-selected', selected ? 'true' : 'false');
-          tab.panel.hidden = !selected;
-        }
-        if (button.id === 'fds-tab-news') loadFacultyNews();
-      }
-
-      async function loadFacultyNews() {
-        const request = ++newsRequest;
-        newsList.replaceChildren();
-        newsFallback.hidden = true;
-        newsMore.hidden = true;
-        try {
-          const response = await fetch('/fds-news', { cache: 'no-store' });
-          if (!response.ok) throw new Error('news');
-          const data = await response.json();
-          if (request !== newsRequest) return;
-          const items = Array.isArray(data.items) ? data.items.slice(0, 3) : [];
-          if (items.length < 3 || items.some((item) => !item || typeof item.title !== 'string' || typeof item.url !== 'string' || !/^\d{4}\/\d{2}\/\d{2}$/.test(item.date))) {
-            throw new Error('news');
-          }
-          for (const item of items) {
-            const link = document.createElement('a');
-            link.href = item.url;
-            link.target = '_blank';
-            link.rel = 'noopener';
-            link.textContent = item.title;
-            const time = document.createElement('time');
-            time.dateTime = item.date.replaceAll('/', '-');
-            time.textContent = item.date;
-            const row = document.createElement('li');
-            row.append(time, link);
-            newsList.append(row);
-          }
-          newsMore.hidden = false;
-        } catch {
-          if (request !== newsRequest) return;
-          newsList.replaceChildren();
-          newsFallback.hidden = false;
-        }
-      }
-
-      for (const tab of fdsTabs) {
-        tab.button.addEventListener('click', () => showFacultyTab(tab.button));
-      }
-    </script>
   </body>
 </html>
