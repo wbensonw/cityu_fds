@@ -152,19 +152,19 @@ export function createVehicles(root) {
   });
 
   const busWhite = standardMaterial(0xf4f1ea);
-  const busOrange = standardMaterial(0xe85a1a);
+  const busOrange = standardMaterial(0xff7f00);
   const busBelt = standardMaterial(0x4a2a24);
   const busBlack = standardMaterial(0x1a1a1a);
   const busSign = standardMaterial(0xffb020, { emissive: 0xff9a1a, emissiveIntensity: 1.4 });
   const busPart = (name, material, color) => addInstanced(root, name, box, material, [{ color }]);
   const busParts = {
     shell: busPart('busShell', busWhite, 0xf4f1ea),
-    skirt: busPart('busSkirt', busOrange, 0xe85a1a),
+    skirt: busPart('busSkirt', busOrange, 0xff7f00),
     belt: busPart('busBelt', busBelt, 0x4a2a24),
     roof: busPart('busRoof', busWhite, 0xe7e2d8),
     windshield: busPart('busWindshield', glass, 0x8aa4b4),
     sign: busPart('busSign', busSign, 0xffb020),
-    bumperF: busPart('busBumperF', busOrange, 0xe85a1a),
+    bumperF: busPart('busBumperF', busOrange, 0xff7f00),
     headL: busPart('busHeadL', headLamp, 0xfff0c8),
     headR: busPart('busHeadR', headLamp, 0xfff0c8),
     nose: busPart('busNose', busBlack, 0x1a1a1a),
@@ -177,7 +177,7 @@ export function createVehicles(root) {
     tail: busPart('busTail', busWhite, 0xf4f1ea),
     tailL: busPart('busTailL', tailLamp, 0xe25a4a),
     tailR: busPart('busTailR', tailLamp, 0xe25a4a),
-    bumperR: busPart('busBumperR', busOrange, 0xe85a1a),
+    bumperR: busPart('busBumperR', busOrange, 0xff7f00),
     wheels: addInstanced(root, 'busWheels', wheelGeo, white, blank(4, 0x2a2a2a)),
   };
 
